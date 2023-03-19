@@ -1,0 +1,8 @@
+#ifndef ACO_ALGORITHMS_ANTS_PARAMS_H
+#define ACO_ALGORITHMS_ANTS_PARAMS_H
+
+
+
+struct AntsParams;
+
+#endif //ACO_ALGORITHMS_ANTS_PARAMS_H
