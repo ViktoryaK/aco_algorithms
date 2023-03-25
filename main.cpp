@@ -1,11 +1,14 @@
 #include <iostream>
 #include <charconv>
 #include <fstream>
-#include "parsers/parser.h"
+#include "src/parsers/parser.h"
 #include <boost/program_options.hpp>
+#include "src/parsers/ants_params.h"
+#include "src/parsers/graph_parser.h"
+#include "src/ant_colony_optimization_tsp/ant_system_tsp.h"
 
 int main(int argc, char **argv) {
-    if (argc!=3) {
+    if (argc!=4) {
         std::cerr << "Wrong number of arguments" << std::endl;
         return 1;
     }
@@ -23,6 +26,8 @@ int main(int argc, char **argv) {
         return 1;
     }
     boost::program_options::variables_map options = parse(config_path);
-
+    AntsParams opt(options);
+    std::vector<std::unordered_map<size_t, size_t>> graph = parse_graph(graph_path, opt.nodes);
+    ant_system(graph, opt);
     return 0;
 }
