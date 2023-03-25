@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     }
     boost::program_options::variables_map options = parse(config_path);
     AntsParams opt(options);
-    std::vector<std::unordered_map<size_t, size_t>> graph = parse_graph(graph_path, opt.nodes);
+    std::vector<std::unordered_map<size_t, double>> graph = parse_graph(graph_path, opt.nodes);
     ant_system(graph, opt);
     return 0;
 }

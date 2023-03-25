@@ -6,7 +6,6 @@
 #include "../parsers/ants_params.h"
 #include <map>
 
-void ant_system(const std::vector<std::unordered_map<size_t, size_t>> &graph, const AntsParams &config);
-
+void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config);
 
 #endif //UNTITLED6_ANT_SYSTEM_H
