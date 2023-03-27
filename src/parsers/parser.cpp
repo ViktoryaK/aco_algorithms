@@ -14,8 +14,9 @@ boost::program_options::variables_map parse(const std::string &config_file) {
             ("deposition", boost::program_options::value<double>()->required(), "deposition")
             ("evaporation_rate", boost::program_options::value<double>()->default_value(0), "evaporation_rate")
             ("init_pheromone", boost::program_options::value<double>()->default_value(0), "init_pheromone")
-            ("ants_n", boost::program_options::value<size_t>()->required(), "ants_n");
-
+            ("ants_n", boost::program_options::value<size_t>()->required(), "ants_n")
+            ("termination", boost::program_options::value<double>()->default_value(0.8), "termination")
+            ("elitism_n", boost::program_options::value<size_t>()->default_value(0), "elitism_n");
     std::ifstream file(config_file);
     boost::program_options::store(boost::program_options::parse_config_file(file, desc), options);
     boost::program_options::notify(options);

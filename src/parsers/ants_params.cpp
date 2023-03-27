@@ -1,4 +1,3 @@
-#include <boost/program_options.hpp>
 #include "ants_params.h"
 
 
@@ -10,4 +9,6 @@ AntsParams::AntsParams(boost::program_options::variables_map &options) {
     deposition = options["deposition"].as<double>();
     evaporation_rate = options["evaporation_rate"].as<double>();
     init_pheromone = options["init_pheromone"].as<double>();
+    termination = options["termination"].as<double>();
+    elitism_n = options["elitism_n"].as<size_t>();
 }

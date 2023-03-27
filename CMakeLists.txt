@@ -54,10 +54,21 @@ include(cmake/CompilerWarnings.cmake)
 ##########################################################
 
 #! Project main executable source compilation
-add_executable(aco_algorithms main.cpp ./src/parsers/graph_parser.cpp ./src/parsers/graph_parser.h
-        ./src/parsers/parser.cpp ./src/parsers/parser.h ./src/ant_colony_optimization_tsp/ant_system_tsp.cpp
-        ./src/ant_colony_optimization_tsp/ant_system_tsp.h ./src/parsers/ants_params.cpp ./src/parsers/ants_params.h
-        ./src/random_choice/random_choice.h ./src/random_choice/random_choice.cpp)
+add_executable(aco_algorithms main.cpp
+        ./src/parsers/graph_parser.cpp
+        ./src/parsers/graph_parser.h
+        ./src/parsers/parser.cpp
+        ./src/parsers/parser.h
+        ./src/parsers/ants_params.cpp
+        ./src/parsers/ants_params.h
+        ./src/random_choice/random_choice.cpp
+        ./src/random_choice/random_choice.h
+        ./src/graph_generation/write_to_csv.cpp
+        ./src/graph_generation/write_to_csv.h
+        ./src/ant_colony_optimization_tsp/ant_system_tsp.cpp
+        ./src/ant_colony_optimization_tsp/ant_system_tsp.h
+        ./src/ant_colony_optimization_tsp/ant_system_tsp_return.cpp
+        ./src/ant_colony_optimization_tsp/ant_system_tsp_return.h)
 
 #find_package(Threads REQUIRED)
 #target_link_libraries(integrate_parallel_tpool Threads::Threads)

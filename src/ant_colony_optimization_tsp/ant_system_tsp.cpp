@@ -1,52 +1,54 @@
 #include <iostream>
-#include <fstream>
-#include "ant_system_tsp.h"
+#include "ant_system_tsp_return.h"
 #include "../random_choice/random_choice.h"
+#include "../graph_generation/write_to_csv.h"
 
-void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config) {
+
+void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+                const std::string &output_path) {
     std::vector<std::vector<double>> pheromones;
     for (size_t node = 0; node < config.nodes; ++node) {
         pheromones.emplace_back(config.nodes, config.init_pheromone);
     }
+
     double min_length = std::numeric_limits<double>::max();
     size_t choose_most_popular = 0;
+
     std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
-    size_t iteration = 0;
     std::vector<std::pair<size_t, size_t>> min_path;
-    while ((double) choose_most_popular / (double) config.ants_n < 0.8) {
+    size_t iteration = 0;
+
+    while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
         std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
+
         std::unordered_map<double, size_t> path_popularity;
         std::unordered_map<double, size_t> path_by_length;
+
         for (size_t ant = 0; ant < config.ants_n; ++ant) {
             std::vector<bool> visited(config.nodes, false);
             visited[0] = true;
-            size_t chosen = config.nodes;
             size_t node = 0;
+            size_t chosen = config.nodes;
             size_t prev = config.nodes;
             for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
                 std::vector<size_t> free_neighbours;
                 std::vector<double> probabilities;
                 for (auto const &[key, val]: graph[node]) {
-                    if (!visited[key] and key != prev) {
+                    if (!visited[key] && key != prev) {
                         probabilities.push_back(pow(pheromones[node][key], config.alpha) /
                                                 pow(val, config.betta));
                         free_neighbours.push_back(key);
                     }
                 }
-                if (free_neighbours.empty()) {
+                if (free_neighbours.empty()) { //for case if graph isn't full
                     chosen = config.nodes;
                     break;
                 }
                 chosen = random_choice(probabilities, free_neighbours);
-                visited[chosen] = true;
-                prev = node;
                 paths[ant].emplace_back(node, chosen);
+                prev = node;
                 node = chosen;
-            }
-            if (chosen != config.nodes){
-                if (graph[node].find(0) != graph[node].end()){
-                    paths[ant].emplace_back(node, 0);
-                }
+                visited[chosen] = true;
             }
         }
         for (size_t node = 0; node < config.nodes; ++node) {
@@ -56,19 +58,15 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
             }
         }
         for (size_t ant = 0; ant < config.ants_n; ++ant) {
-            if (paths[ant].size() != config.nodes) {
+            if (paths[ant].size() != config.nodes - 1) {
                 continue;
             }
             double total_length = 0;
             for (std::pair<size_t, size_t> path: paths[ant]) {
                 total_length += graph[path.first].at(path.second);
             }
-            if (path_popularity.find(total_length) == path_popularity.end()) {
-                path_popularity[total_length] = 1;
-                path_by_length[total_length] = ant;
-            } else {
-                path_popularity[total_length] += 1;
-            }
+            path_popularity[total_length]++;
+            path_by_length[total_length] = ant;
             std::cout << "Ant " << ant << ": " << total_length << std::endl;
             if (total_length < min_length) {
                 min_length = total_length;
@@ -85,25 +83,101 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
                 most_popular_paths.push_back(paths[path_by_length[key]]);
             }
         }
-        std::cout << "Min length " << iteration++ << ": " << min_length << std::endl;
+        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
+        iteration++;
     }
-    std::ofstream file_csv;
-    file_csv.open("./data/paths3.csv");
-    for (size_t i = 0; i < iteration - 1; ++i) {
-        file_csv << "path_" << i << ",";
-        for (size_t elem = 0; elem < config.nodes - 1; ++elem) {
-            file_csv << most_popular_paths[i][elem].first << " " << most_popular_paths[i][elem].second << ",";
+    write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
+}
+
+void ant_system_elitism(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+                        const std::string &output_path) {
+    std::vector<std::vector<double>> pheromones;
+    for (size_t node = 0; node < config.nodes; ++node) {
+        pheromones.emplace_back(config.nodes, config.init_pheromone);
+    }
+
+    double min_length = std::numeric_limits<double>::max();
+    size_t choose_most_popular = 0;
+
+    std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
+    std::vector<std::pair<size_t, size_t>> min_path;
+    size_t iteration = 0;
+    size_t elite_ant = 0;
+    std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
+    while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
+        std::unordered_map<double, size_t> path_popularity;
+        std::unordered_map<double, size_t> path_by_length;
+
+        for (size_t ant = elite_ant; ant < config.ants_n; ++ant) {
+            std::vector<bool> visited(config.nodes, false);
+            visited[0] = true;
+            size_t node = 0;
+            size_t chosen = config.nodes;
+            size_t prev = config.nodes;
+            for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
+                std::vector<size_t> free_neighbours;
+                std::vector<double> probabilities;
+                for (auto const &[key, val]: graph[node]) {
+                    if (!visited[key] && key != prev) {
+                        probabilities.push_back(pow(pheromones[node][key], config.alpha) /
+                                                pow(val, config.betta));
+                        free_neighbours.push_back(key);
+                    }
+                }
+                if (free_neighbours.empty()) { //for case if graph isn't full
+                    chosen = config.nodes;
+                    break;
+                }
+                chosen = random_choice(probabilities, free_neighbours);
+                paths[ant].emplace_back(node, chosen);
+                prev = node;
+                node = chosen;
+                visited[chosen] = true;
+            }
         }
-        file_csv << most_popular_paths[i][config.nodes - 1].first << " "
-                 << most_popular_paths[i][config.nodes - 1].second << "\n";
+        for (size_t node = 0; node < config.nodes; ++node) {
+            for (auto const &[key, val]: graph[node]) {
+                pheromones[node][key] *= 1 - config.evaporation_rate;
+                pheromones[key][node] *= 1 - config.evaporation_rate;
+            }
+        }
+        for (size_t ant = 0; ant < config.ants_n; ++ant) {
+            if (paths[ant].size() != config.nodes - 1) {
+                continue;
+            }
+            double total_length = 0;
+            for (std::pair<size_t, size_t> path: paths[ant]) {
+                total_length += graph[path.first].at(path.second);
+            }
+            path_popularity[total_length]++;
+            path_by_length[total_length] = ant;
+            std::cout << "Ant " << ant << ": " << total_length << std::endl;
+            for (std::pair<size_t, size_t> path: paths[ant]) {
+                pheromones[path.first].at(path.second) += config.deposition / total_length;
+            }
+            choose_most_popular = 0;
+        }
+        std::vector<double> all_paths;
+        for (auto const &[key, val]: path_popularity) {
+            all_paths.push_back(key);
+            if (val > choose_most_popular) {
+                choose_most_popular = val;
+                most_popular_paths.push_back(paths[path_by_length[key]]);
+            }
+        }
+        sort(all_paths.begin(), all_paths.end());
+        if (min_length > all_paths[0]) {
+            min_length = all_paths[0];
+        }
+        min_path = paths[path_by_length[min_length]];
+        paths.clear();
+        paths.resize(config.ants_n);
+        for (size_t elite = 0; elite < config.elitism_n; ++elite) {
+            paths[elite] = paths[path_by_length[all_paths[elite]]];
+        }
+        elite_ant = config.elitism_n;
+        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
+        iteration++;
     }
-    file_csv << "min_path,";
-    for (size_t elem = 0; elem < config.nodes - 1; ++elem) {
-        file_csv << min_path[elem].first << " " << min_path[elem].second << ",";
-    }
-    file_csv << min_path[config.nodes - 1].first << " "
-             << min_path[config.nodes - 1].second << "\n";
-
-
-    file_csv.close();
+    write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
 }
