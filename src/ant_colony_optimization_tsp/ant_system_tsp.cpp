@@ -166,18 +166,28 @@ void ant_system_elitism(const std::vector<std::unordered_map<size_t, double>> &g
             }
         }
         sort(all_paths.begin(), all_paths.end());
+
         if (min_length > all_paths[0]) {
             min_length = all_paths[0];
         }
         min_path = paths[path_by_length[min_length]];
-        paths.clear();
-        paths.resize(config.ants_n);
-        for (size_t elite = 0; elite < config.elitism_n; ++elite) {
-            paths[elite] = paths[path_by_length[all_paths[elite]]];
+        size_t elite = 0;
+        size_t path_n = 0;
+        std::vector<std::vector<std::pair<size_t, size_t>>> elite_paths(config.elitism_n);
+        while (elite < config.elitism_n) {
+            size_t cur_path = 0;
+            while (cur_path < path_popularity[all_paths[elite]] && cur_path + elite < config.elitism_n){
+                elite_paths[elite + cur_path] = paths[path_by_length[all_paths[path_n]]];
+                cur_path++;
+            }
+            elite += cur_path;
+            path_n++;
         }
+        paths = elite_paths;
+        paths.resize(config.ants_n);
         elite_ant = config.elitism_n;
-        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
         iteration++;
+        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
     }
     write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
 }
