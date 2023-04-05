@@ -63,12 +63,19 @@ add_executable(aco_algorithms main.cpp
         ./src/parsers/ants_params.h
         ./src/random_choice/random_choice.cpp
         ./src/random_choice/random_choice.h
+        ./src/random_choice/max_choice.cpp
+        ./src/random_choice/max_choice.h
         ./src/graph_generation/write_to_csv.cpp
         ./src/graph_generation/write_to_csv.h
         ./src/ant_colony_optimization_tsp/ant_system_tsp.cpp
         ./src/ant_colony_optimization_tsp/ant_system_tsp.h
         ./src/ant_colony_optimization_tsp/ant_system_tsp_return.cpp
-        ./src/ant_colony_optimization_tsp/ant_system_tsp_return.h)
+        ./src/ant_colony_optimization_tsp/ant_system_tsp_return.h        .
+        ./src/ant_colony_optimization_tsp/ant_colony_system_tsp.cpp
+        ./src/ant_colony_optimization_tsp/ant_colony_system_tsp.h
+        ./src/ant_colony_optimization_tsp/max_min_ant_system_tsp.cpp
+        ./src/ant_colony_optimization_tsp/max_min_ant_system_tsp.h
+        )
 
 #find_package(Threads REQUIRED)
 #target_link_libraries(integrate_parallel_tpool Threads::Threads)

@@ -1,10 +1,11 @@
+#include "ant_colony_system_tsp.h"
 #include <iostream>
-#include <fstream>
-#include "ant_system_tsp_return.h"
 #include "../random_choice/random_choice.h"
+#include "../random_choice/max_choice.h"
 #include "../graph_generation/write_to_csv.h"
+#include <random>
 
-void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+void ant_colony_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
                        const std::string &output_path) {
     std::vector<std::vector<double>> pheromones;
     for (size_t node = 0; node < config.nodes; ++node) {
@@ -38,22 +39,26 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
                         probabilities.push_back(pow(pheromones[node][key], config.alpha) /
                                                 pow(val, config.betta));
                         free_neighbours.push_back(key);
+                        pheromones[node][key] = (1 - config.pheromone_decay) * pheromones[node][key] +
+                                config.pheromone_decay * config.init_pheromone;
                     }
                 }
                 if (free_neighbours.empty()) { //for case if graph isn't full
                     chosen = config.nodes;
                     break;
                 }
-                chosen = random_choice(probabilities, free_neighbours);
+                std::default_random_engine generator;
+                std::uniform_real_distribution<double> distribution(0.0, 1.0);
+                double explore_rv = distribution(generator);
+                if (explore_rv < config.explore_const) {
+                    chosen = max_choice(probabilities, free_neighbours);
+                } else {
+                    chosen = random_choice(probabilities, free_neighbours);
+                }
                 paths[ant].emplace_back(node, chosen);
                 prev = node;
                 node = chosen;
                 visited[chosen] = true;
-            }
-            if (chosen != config.nodes) { //for case if graph isn't full
-                if (graph[node].find(0) != graph[node].end()) {
-                    paths[ant].emplace_back(node, 0);
-                }
             }
         }
         for (size_t node = 0; node < config.nodes; ++node) {
@@ -63,7 +68,7 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
             }
         }
         for (size_t ant = 0; ant < config.ants_n; ++ant) {
-            if (paths[ant].size() != config.nodes) {
+            if (paths[ant].size() != config.nodes - 1) {
                 continue;
             }
             double total_length = 0;
@@ -88,7 +93,8 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
                 most_popular_paths.push_back(paths[path_by_length[key]]);
             }
         }
-        std::cout << "Min length " << iteration++ << ": " << min_length << std::endl;
+        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
+        iteration++;
     }
     write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
 }

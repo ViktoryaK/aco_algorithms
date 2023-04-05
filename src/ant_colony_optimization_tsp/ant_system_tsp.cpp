@@ -1,11 +1,12 @@
+#include "ant_system_tsp.h"
 #include <iostream>
-#include "ant_system_tsp_return.h"
+#include <random>
 #include "../random_choice/random_choice.h"
 #include "../graph_generation/write_to_csv.h"
 
 
-void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
-                const std::string &output_path) {
+void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+                    const std::string &output_path) {
     std::vector<std::vector<double>> pheromones;
     for (size_t node = 0; node < config.nodes; ++node) {
         pheromones.emplace_back(config.nodes, config.init_pheromone);
@@ -17,7 +18,6 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
     std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
     std::vector<std::pair<size_t, size_t>> min_path;
     size_t iteration = 0;
-
     while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
         std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
 
@@ -30,6 +30,9 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
             size_t node = 0;
             size_t chosen = config.nodes;
             size_t prev = config.nodes;
+            std::default_random_engine generator;
+            std::uniform_real_distribution<double> distribution(0.0, 1.0);
+            double mutation = distribution(generator);
             for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
                 std::vector<size_t> free_neighbours;
                 std::vector<double> probabilities;
@@ -44,7 +47,15 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
                     chosen = config.nodes;
                     break;
                 }
-                chosen = random_choice(probabilities, free_neighbours);
+                if (mutation < config.mutation_rate) {
+                    std::random_device rd;
+                    std::mt19937 rng(rd());
+                    std::uniform_int_distribution<size_t> uni(0, free_neighbours.size());
+                    auto random_integer = uni(rng);
+                    chosen = free_neighbours[random_integer];
+                } else {
+                    chosen = random_choice(probabilities, free_neighbours);
+                }
                 paths[ant].emplace_back(node, chosen);
                 prev = node;
                 node = chosen;
@@ -89,8 +100,8 @@ void ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, co
     write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
 }
 
-void ant_system_elitism(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
-                        const std::string &output_path) {
+void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+                            const std::string &output_path) {
     std::vector<std::vector<double>> pheromones;
     for (size_t node = 0; node < config.nodes; ++node) {
         pheromones.emplace_back(config.nodes, config.init_pheromone);
@@ -176,7 +187,7 @@ void ant_system_elitism(const std::vector<std::unordered_map<size_t, double>> &g
         std::vector<std::vector<std::pair<size_t, size_t>>> elite_paths(config.elitism_n);
         while (elite < config.elitism_n) {
             size_t cur_path = 0;
-            while (cur_path < path_popularity[all_paths[elite]] && cur_path + elite < config.elitism_n){
+            while (cur_path < path_popularity[all_paths[elite]] && cur_path + elite < config.elitism_n) {
                 elite_paths[elite + cur_path] = paths[path_by_length[all_paths[path_n]]];
                 cur_path++;
             }

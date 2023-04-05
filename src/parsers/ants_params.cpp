@@ -11,4 +11,9 @@ AntsParams::AntsParams(boost::program_options::variables_map &options) {
     init_pheromone = options["init_pheromone"].as<double>();
     termination = options["termination"].as<double>();
     elitism_n = options["elitism_n"].as<size_t>();
+    pheromone_decay = options["pheromone_decay"].as<double>();
+    explore_const = options["explore_const"].as<double>();
+    min_pheromone = options["min_pheromone"].as<double>();
+    max_pheromone = options["max_pheromone"].as<double>();
+    mutation_rate = options["mutation_rate"].as<double>();
 }

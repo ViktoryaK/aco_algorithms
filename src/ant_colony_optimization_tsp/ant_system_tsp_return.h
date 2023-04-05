@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 
-void ant_system_return(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
                        const std::string &output_path);
 
 #endif //UNTITLED6_ANT_SYSTEM_H

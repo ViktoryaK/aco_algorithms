@@ -1,11 +1,11 @@
+#include "max_min_ant_system_tsp.h"
 #include <iostream>
-#include <fstream>
-#include "ant_system_tsp_return.h"
 #include "../random_choice/random_choice.h"
 #include "../graph_generation/write_to_csv.h"
 
-void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
-                       const std::string &output_path) {
+
+void max_min_ant_system(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
+                        const std::string &output_path) {
     std::vector<std::vector<double>> pheromones;
     for (size_t node = 0; node < config.nodes; ++node) {
         pheromones.emplace_back(config.nodes, config.init_pheromone);
@@ -50,11 +50,6 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
                 node = chosen;
                 visited[chosen] = true;
             }
-            if (chosen != config.nodes) { //for case if graph isn't full
-                if (graph[node].find(0) != graph[node].end()) {
-                    paths[ant].emplace_back(node, 0);
-                }
-            }
         }
         for (size_t node = 0; node < config.nodes; ++node) {
             for (auto const &[key, val]: graph[node]) {
@@ -63,7 +58,7 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
             }
         }
         for (size_t ant = 0; ant < config.ants_n; ++ant) {
-            if (paths[ant].size() != config.nodes) {
+            if (paths[ant].size() != config.nodes - 1) {
                 continue;
             }
             double total_length = 0;
@@ -77,10 +72,18 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
                 min_length = total_length;
                 min_path = paths[ant];
             }
-            for (std::pair<size_t, size_t> path: paths[ant]) {
-                pheromones[path.first].at(path.second) += config.deposition / total_length;
-            }
             choose_most_popular = 0;
+        }
+        for (std::pair<size_t, size_t> path: min_path) {
+            pheromones[path.first].at(path.second) += config.deposition / min_length;
+        }
+        for (size_t node = 0; node < config.nodes; ++node) {
+            for (auto const &[key, val]: graph[node]) {
+                pheromones[node][key] = std::max(pheromones[node][key], config.min_pheromone);
+                pheromones[key][node] = std::max(pheromones[key][node], config.min_pheromone);
+                pheromones[node][key] = std::min(pheromones[node][key], config.max_pheromone);
+                pheromones[key][node] = std::min(pheromones[key][node], config.max_pheromone);
+            }
         }
         for (auto const &[key, val]: path_popularity) {
             if (val > choose_most_popular) {
@@ -88,7 +91,8 @@ void ant_system_return_tsp(const std::vector<std::unordered_map<size_t, double>>
                 most_popular_paths.push_back(paths[path_by_length[key]]);
             }
         }
-        std::cout << "Min length " << iteration++ << ": " << min_length << std::endl;
+        std::cout << "Min length " << iteration << ": " << min_length << std::endl;
+        iteration++;
     }
     write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
 }

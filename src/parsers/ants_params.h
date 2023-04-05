@@ -14,6 +14,11 @@ public:
     double init_pheromone;
     double termination;
     size_t elitism_n;
+    double pheromone_decay;
+    double explore_const;
+    double min_pheromone;
+    double max_pheromone;
+    double mutation_rate;
 
 
     explicit AntsParams(boost::program_options::variables_map &options);
