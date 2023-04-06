@@ -16,4 +16,5 @@ AntsParams::AntsParams(boost::program_options::variables_map &options) {
     min_pheromone = options["min_pheromone"].as<double>();
     max_pheromone = options["max_pheromone"].as<double>();
     mutation_rate = options["mutation_rate"].as<double>();
+    max_iter = options["max_iter"].as<size_t>();
 }

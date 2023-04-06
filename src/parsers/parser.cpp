@@ -15,7 +15,7 @@ boost::program_options::variables_map parse(const std::string &config_file) {
             ("evaporation_rate", boost::program_options::value<double>()->default_value(0), "evaporation_rate")
             ("init_pheromone", boost::program_options::value<double>()->default_value(0), "init_pheromone")
             ("ants_n", boost::program_options::value<size_t>()->required(), "ants_n")
-            ("termination", boost::program_options::value<double>()->default_value(0.8), "termination")
+            ("termination", boost::program_options::value<double>()->default_value(2), "termination")
             ("elitism_n", boost::program_options::value<size_t>()->default_value(0), "elitism_n")
             ("pheromone_decay", boost::program_options::value<double>()->default_value(0), "pheromone_decay")
             ("explore_const", boost::program_options::value<double>()->default_value(0), "explore_const")
@@ -23,7 +23,8 @@ boost::program_options::variables_map parse(const std::string &config_file) {
             ("max_pheromone",
              boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max()),
              "max_pheromone")
-            ("mutation_rate", boost::program_options::value<double>()->default_value(0), "mutation_rate");
+            ("mutation_rate", boost::program_options::value<double>()->default_value(0), "mutation_rate")
+            ("max_iter", boost::program_options::value<size_t>()->default_value(UINT_MAX), "max_iter");
     std::ifstream file(config_file);
     boost::program_options::store(boost::program_options::parse_config_file(file, desc), options);
     boost::program_options::notify(options);

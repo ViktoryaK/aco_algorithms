@@ -14,11 +14,12 @@ void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph
 
     double min_length = std::numeric_limits<double>::max();
     size_t choose_most_popular = 0;
+    double most_popular_length;
 
     std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
     std::vector<std::pair<size_t, size_t>> min_path;
     size_t iteration = 0;
-    while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
+    while ((double) choose_most_popular / (double) config.ants_n < config.termination & iteration < config.max_iter) {
         std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
 
         std::unordered_map<double, size_t> path_popularity;
@@ -30,9 +31,7 @@ void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph
             size_t node = 0;
             size_t chosen = config.nodes;
             size_t prev = config.nodes;
-            std::default_random_engine generator;
-            std::uniform_real_distribution<double> distribution(0.0, 1.0);
-            double mutation = distribution(generator);
+            double mutation = rand() / double(RAND_MAX);
             for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
                 std::vector<size_t> free_neighbours;
                 std::vector<double> probabilities;
@@ -50,7 +49,7 @@ void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph
                 if (mutation < config.mutation_rate) {
                     std::random_device rd;
                     std::mt19937 rng(rd());
-                    std::uniform_int_distribution<size_t> uni(0, free_neighbours.size());
+                    std::uniform_int_distribution<size_t> uni(0, free_neighbours.size() - 1);
                     auto random_integer = uni(rng);
                     chosen = free_neighbours[random_integer];
                 } else {
@@ -78,7 +77,6 @@ void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph
             }
             path_popularity[total_length]++;
             path_by_length[total_length] = ant;
-            std::cout << "Ant " << ant << ": " << total_length << std::endl;
             if (total_length < min_length) {
                 min_length = total_length;
                 min_path = paths[ant];
@@ -86,14 +84,16 @@ void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph
             for (std::pair<size_t, size_t> path: paths[ant]) {
                 pheromones[path.first].at(path.second) += config.deposition / total_length;
             }
-            choose_most_popular = 0;
         }
+        choose_most_popular = 0;
         for (auto const &[key, val]: path_popularity) {
             if (val > choose_most_popular) {
                 choose_most_popular = val;
-                most_popular_paths.push_back(paths[path_by_length[key]]);
+                most_popular_length = key;
             }
         }
+        most_popular_paths.push_back(paths[path_by_length[most_popular_length]]);
+        std::cout << "Most popular " << iteration << ": " << most_popular_length << std::endl;
         std::cout << "Min length " << iteration << ": " << min_length << std::endl;
         iteration++;
     }
@@ -109,13 +109,14 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
 
     double min_length = std::numeric_limits<double>::max();
     size_t choose_most_popular = 0;
+    double most_popular_length;
 
     std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
     std::vector<std::pair<size_t, size_t>> min_path;
     size_t iteration = 0;
     size_t elite_ant = 0;
     std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
-    while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
+    while ((double) choose_most_popular / (double) config.ants_n < config.termination & iteration < config.max_iter) {
         std::unordered_map<double, size_t> path_popularity;
         std::unordered_map<double, size_t> path_by_length;
 
@@ -125,6 +126,7 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
             size_t node = 0;
             size_t chosen = config.nodes;
             size_t prev = config.nodes;
+            double mutation = rand() / double(RAND_MAX);
             for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
                 std::vector<size_t> free_neighbours;
                 std::vector<double> probabilities;
@@ -139,7 +141,15 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
                     chosen = config.nodes;
                     break;
                 }
-                chosen = random_choice(probabilities, free_neighbours);
+                if (mutation < config.mutation_rate) {
+                    std::random_device rd;
+                    std::mt19937 rng(rd());
+                    std::uniform_int_distribution<size_t> uni(0, free_neighbours.size() - 1);
+                    auto random_integer = uni(rng);
+                    chosen = free_neighbours[random_integer];
+                } else {
+                    chosen = random_choice(probabilities, free_neighbours);
+                }
                 paths[ant].emplace_back(node, chosen);
                 prev = node;
                 node = chosen;
@@ -162,7 +172,6 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
             }
             path_popularity[total_length]++;
             path_by_length[total_length] = ant;
-            std::cout << "Ant " << ant << ": " << total_length << std::endl;
             for (std::pair<size_t, size_t> path: paths[ant]) {
                 pheromones[path.first].at(path.second) += config.deposition / total_length;
             }
@@ -173,9 +182,10 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
             all_paths.push_back(key);
             if (val > choose_most_popular) {
                 choose_most_popular = val;
-                most_popular_paths.push_back(paths[path_by_length[key]]);
+                most_popular_length = key;
             }
         }
+        most_popular_paths.push_back(paths[path_by_length[most_popular_length]]);
         sort(all_paths.begin(), all_paths.end());
 
         if (min_length > all_paths[0]) {
@@ -198,7 +208,10 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
         paths.resize(config.ants_n);
         elite_ant = config.elitism_n;
         iteration++;
+        std::cout << "Most popular " << iteration << ": " << most_popular_length << std::endl;
         std::cout << "Min length " << iteration << ": " << min_length << std::endl;
     }
-    write_to_csv(output_path, most_popular_paths, min_path, config.nodes, iteration);
+
+    write_to_csv(output_path, most_popular_paths, min_path, config
+            .nodes, iteration);
 }

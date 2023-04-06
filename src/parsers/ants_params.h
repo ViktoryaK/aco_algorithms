@@ -19,6 +19,7 @@ public:
     double min_pheromone;
     double max_pheromone;
     double mutation_rate;
+    size_t max_iter;
 
 
     explicit AntsParams(boost::program_options::variables_map &options);

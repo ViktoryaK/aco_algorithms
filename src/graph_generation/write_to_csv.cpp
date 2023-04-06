@@ -4,6 +4,7 @@
 
 #include "write_to_csv.h"
 #include <fstream>
+#include <iostream>
 
 void write_to_csv(const std::string &output_path,
                   const std::vector<std::vector<std::pair<size_t, size_t>>> &most_popular_paths,

@@ -14,12 +14,13 @@ void ant_colony_system_tsp(const std::vector<std::unordered_map<size_t, double>>
 
     double min_length = std::numeric_limits<double>::max();
     size_t choose_most_popular = 0;
+    double most_popular_length;
 
     std::vector<std::vector<std::pair<size_t, size_t>>> most_popular_paths;
     std::vector<std::pair<size_t, size_t>> min_path;
     size_t iteration = 0;
 
-    while ((double) choose_most_popular / (double) config.ants_n < config.termination) {
+    while ((double) choose_most_popular / (double) config.ants_n < config.termination & iteration < config.max_iter) {
         std::vector<std::vector<std::pair<size_t, size_t>>> paths(config.ants_n);
 
         std::unordered_map<double, size_t> path_popularity;
@@ -47,9 +48,8 @@ void ant_colony_system_tsp(const std::vector<std::unordered_map<size_t, double>>
                     chosen = config.nodes;
                     break;
                 }
-                std::default_random_engine generator;
-                std::uniform_real_distribution<double> distribution(0.0, 1.0);
-                double explore_rv = distribution(generator);
+
+                double explore_rv = rand() / double(RAND_MAX);
                 if (explore_rv < config.explore_const) {
                     chosen = max_choice(probabilities, free_neighbours);
                 } else {
@@ -77,7 +77,6 @@ void ant_colony_system_tsp(const std::vector<std::unordered_map<size_t, double>>
             }
             path_popularity[total_length]++;
             path_by_length[total_length] = ant;
-            std::cout << "Ant " << ant << ": " << total_length << std::endl;
             if (total_length < min_length) {
                 min_length = total_length;
                 min_path = paths[ant];
@@ -85,14 +84,16 @@ void ant_colony_system_tsp(const std::vector<std::unordered_map<size_t, double>>
             for (std::pair<size_t, size_t> path: paths[ant]) {
                 pheromones[path.first].at(path.second) += config.deposition / total_length;
             }
-            choose_most_popular = 0;
         }
+        choose_most_popular = 0;
         for (auto const &[key, val]: path_popularity) {
             if (val > choose_most_popular) {
                 choose_most_popular = val;
-                most_popular_paths.push_back(paths[path_by_length[key]]);
+                most_popular_length = key;
             }
         }
+        most_popular_paths.push_back(paths[path_by_length[most_popular_length]]);
+        std::cout << "Most popular " << iteration << ": " << most_popular_length << std::endl;
         std::cout << "Min length " << iteration << ": " << min_length << std::endl;
         iteration++;
     }
