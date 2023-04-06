@@ -1,6 +1,6 @@
 # aco_algorithms
 
-### Authors: Jaroslav Klym, Viktoria Kocherkevych
+### Authors: Yaroslav Klym, Viktoria Kocherkevych
 
 The Ant Colony Optimization algorithms are based on the ways ants choose their
 pathes in nature. The algorithm's main point lies in the simulation of ants and their pheromones,
