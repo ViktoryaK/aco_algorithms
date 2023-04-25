@@ -19,6 +19,7 @@ def visualize(graph_path, output_path):
     nx.draw_networkx_edges(G, pos, edgelist=edge_list, width=1)
 
     nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
+
     edge_labels = nx.get_edge_attributes(G, "weight")
     nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=5)
 
