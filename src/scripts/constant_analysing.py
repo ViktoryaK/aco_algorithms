@@ -1,10 +1,6 @@
 import argparse
 
 
-def
-
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Python script for comparison of different functions')

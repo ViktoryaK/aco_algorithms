@@ -3,6 +3,7 @@
 #include <random>
 #include "../random_choice/random_choice.h"
 #include "../graph_generation/write_to_csv.h"
+#include "../time_determination/time_determination.h"
 
 
 void ant_system_tsp(const std::vector<std::unordered_map<size_t, double>> &graph, const AntsParams &config,
@@ -175,8 +176,8 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
             for (std::pair<size_t, size_t> path: paths[ant]) {
                 pheromones[path.first].at(path.second) += config.deposition / total_length;
             }
-            choose_most_popular = 0;
         }
+        choose_most_popular = 0;
         std::vector<double> all_paths;
         for (auto const &[key, val]: path_popularity) {
             all_paths.push_back(key);
