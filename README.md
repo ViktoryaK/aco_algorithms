@@ -27,5 +27,7 @@ pip install numpy
 ```
 ./bin/aco_algorithms ./data/config2_mm.cfg ./data/graph3/graph3.txt ./data/graph3/acs/paths3.csv 4 0
 
+./bin/aco_algorithms_par ./data/config2.cfg ./data/graph3/graph3.txt ./data/graph3/default/par/paths3.csv 4 4
+
 python3 ./src/scripts/ant_colony_tsp_script.py 5 ./data/graph3/graph3.txt ./data/graph3 ./data/config2.cfg ./data/config2_mm.cfg
 ```
