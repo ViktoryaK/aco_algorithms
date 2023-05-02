@@ -42,10 +42,7 @@ int main(int argc, char **argv) {
         ant_system_elitism_tsp_par(thread_number, opt, graph, output_path);
         auto end = get_current_time_fenced();
         std::cout << "Total=" << to_us(end - start) << std::endl;
-    }
-//    } else if (number_of_algorithm == "3") {
-//        ant_colony_system_tsp(graph, opt, output_path);}
-    else if (number_of_algorithm == "4") {
+    } else if (number_of_algorithm == "3") {
         auto start = get_current_time_fenced();
         min_max_ant_system_tsp_par(thread_number, opt, graph, output_path);
         auto end = get_current_time_fenced();

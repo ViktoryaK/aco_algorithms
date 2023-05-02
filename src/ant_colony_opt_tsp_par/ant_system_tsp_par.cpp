@@ -54,6 +54,45 @@ void ant_run(const std::vector<std::vector<double>> &pheromones, const AntsParam
 }
 
 
+void ant_run_min_max(const std::vector<std::vector<double>> &pheromones, const AntsParams &config,
+             const std::vector<std::unordered_map<size_t, double>> &graph,
+             std::vector<std::pair<size_t, size_t>> &ant_path) {
+    std::vector<bool> visited(config.nodes, false);
+    visited[0] = true;
+    size_t node = 0;
+    size_t chosen = config.nodes;
+    size_t prev = config.nodes;
+    double mutation = rand() / double(RAND_MAX);
+    for (size_t created_edge = 0; created_edge < config.nodes - 1; ++created_edge) {
+        std::vector<size_t> free_neighbours;
+        std::vector<double> probabilities;
+        for (auto const &[key, val]: graph[node]) {
+            if (!visited[key] && key != prev) {
+                probabilities.push_back(pow(pheromones[node][key], config.alpha) /
+                                        pow(val, config.betta));
+                free_neighbours.push_back(key);
+            }
+        }
+        if (free_neighbours.empty()) { //for case if graph isn't full
+            chosen = config.nodes;
+            break;
+        }
+        if (mutation < config.mutation_rate) {
+            std::random_device rd;
+            std::mt19937 rng(rd());
+            std::uniform_int_distribution<size_t> uni(0, free_neighbours.size() - 1);
+            auto random_integer = uni(rng);
+            chosen = free_neighbours[random_integer];
+        } else {
+            chosen = random_choice(probabilities, free_neighbours);
+        }
+        ant_path.emplace_back(node, chosen);
+        prev = node;
+        node = chosen;
+        visited[chosen] = true;
+    }
+}
+
 void ant_system_tsp_par(size_t number_of_threads, const AntsParams &config,
                         const std::vector<std::unordered_map<size_t, double>> &graph, const std::string &output_path) {
     boost::asio::thread_pool pool(number_of_threads);
@@ -254,7 +293,7 @@ void min_max_ant_system_tsp_par(size_t number_of_threads, const AntsParams &conf
             std::vector<std::pair<size_t, size_t>> ant_path;
             boost::asio::post(pool, [&paths, &pheromones, &config, &graph, ant]() {
                 std::vector<std::pair<size_t, size_t>> ant_path;
-                ant_run(pheromones, config, graph, ant_path);
+                ant_run_min_max(pheromones, config, graph, ant_path);
                 paths[ant].set_value(ant_path);
             });
         }
