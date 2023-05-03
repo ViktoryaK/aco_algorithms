@@ -3,8 +3,67 @@ import subprocess
 from math import inf
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
+
+def time_graph(times, func_number):
+    threads = [1, 2, 4, 6, 8, 12]
+    print(times)
+    coefficient_list = [times[0]/time/threads[i] for i, time in enumerate(times)]
+    print(coefficient_list)
+
+    bar_width = 0.25
+    br1 = np.arange(len(threads))
+    plt.bar(br1, coefficient_list, color='darkviolet', width=bar_width)
+    plt.xlabel("Number of threads")
+    plt.ylabel("Coefficient")
+    plt.xticks([r for r in range(len(threads))], threads)
+    plt.title(f"Effectiveness of parallelization coefficient for function {func_number}")
+    plt.legend()
+    plt.savefig(f"data/efficiency{func_number}.jpg")
+    plt.cla()
+
+    bar_width = 0.25
+    br1 = np.arange(len(threads))
+    plt.bar(br1, times, color='darkviolet', width=bar_width)
+    plt.xlabel("Number of threads")
+    plt.ylabel("Time")
+    plt.xticks([r for r in range(len(threads))], threads)
+    plt.title(f"Time plot for function {func_number}")
+    plt.legend()
+    plt.savefig(f"data/time{func_number}.jpg")
+    plt.cla()
+
+
+def run_task_par(graph_path, config_path, paths_path, func_num, thread):
+    task_paths = "./bin/aco_algorithms_par"
+    process = subprocess.Popen([task_paths] + [config_path, graph_path, paths_path, str(func_num), str(thread)],
+                               stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    output_str = output.decode("utf-8")
+    output = output_str.split("\n")
+    return output[:-1]
+
+
+def get_res_par(graph_path, config_path, config_path_mm, paths_path, n, threads):
+    funcs_res = []
+    total_times = []
+    for thread in threads:
+        print(f"Running thread {thread}")
+        current_times = []
+        for i in range(1, 4):
+            print(f"Running func: {i}")
+            funcs_res.append([])
+            for _ in range(n):
+                if i == 3:
+                    config_path = config_path_mm
+                func_res = run_task_par(graph_path, config_path, paths_path, i, thread)
+                res_n = []
+                for j in range(0, len(func_res) - 1, 2):
+                    res_n.append((float(func_res[j].split(": ")[1]), float(func_res[j + 1].split(": ")[1])))
+                funcs_res[-1].append(res_n)
+                current_times.append(func_res[-1].split("=")[1])
+        total_times.append(current_times)
+    return funcs_res, total_times
 
 def run_task(graph_path, config_path, paths_path, func_num):
     task_paths = "./bin/aco_algorithms"
@@ -33,7 +92,6 @@ def get_res(graph_path, config_path, config_path_mm, paths_path, n):
             funcs_res[-1].append(res_n)
             total_times[-1].append(func_res[-1].split("=")[1])
     return funcs_res, total_times
-
 
 def build_graph_min(min_res, min_value, number_of_f, path_to_save_min):
     titles = ["ACO", "Elitism", "ACS", "MMAS"]
@@ -99,46 +157,52 @@ if __name__ == "__main__":
     parser.add_argument('dir_path', type=str, help='Path to directory')
     parser.add_argument('config', type=str, help='Path to config file')
     parser.add_argument('config_min_max', type=str, help='Path to min max config file')
+    parser.add_argument('is_parallel', type=bool, help='True or false')
     args = parser.parse_args()
     dir_path = args.dir_path
     config_temp = dir_path + "/config_temp.cfg"
     paths_temp = dir_path + "/path_temp.csv"
     min_path = dir_path + "/min_path.txt"
-    results, times = get_res(args.graph, args.config, args.config_min_max, paths_temp, args.repetitions)
-    print(results)
-    print(times)
-    min_res = []
-    avg_res = []
-    for res_i in results:
-        minimum = inf
-        min_res_i = res_i[0]
-        avg_res_i = []
-        for _ in range(len(res_i[0])):
-            avg_res_i.append([0, 0])
-        for res in res_i:
-            if res[-1][0] < minimum:
-                min_res_i = res
-                minimum = res[-1][0]
+    threads = [1, 2, 4, 6, 8, 12]
+    if args.is_parallel:
+        results, times = get_res_par(args.graph, args.config, args.config_min_max, paths_temp, args.repetitions, threads)
+        time_graph([int(time[0]) for time in times], '1')
+        time_graph([int(time[1]) for time in times], '2')
+        time_graph([int(time[2]) for time in times], '3')
+    else:
+        results, times = get_res(args.graph, args.config, args.config_min_max, paths_temp, args.repetitions)
+        min_res = []
+        avg_res = []
+        for res_i in results:
+            minimum = inf
+            min_res_i = res_i[0]
+            avg_res_i = []
+            for _ in range(len(res_i[0])):
+                avg_res_i.append([0, 0])
+            for res in res_i:
+                if res[-1][0] < minimum:
+                    min_res_i = res
+                    minimum = res[-1][0]
+                for edge in range(len(res_i[0])):
+                    avg_res_i[edge][0] += res[edge][0]
+                    avg_res_i[edge][1] += res[edge][1]
             for edge in range(len(res_i[0])):
-                avg_res_i[edge][0] += res[edge][0]
-                avg_res_i[edge][1] += res[edge][1]
-        for edge in range(len(res_i[0])):
-            avg_res_i[edge][0] /= len(res_i)
-            avg_res_i[edge][1] /= len(res_i)
-        min_res.append(min_res_i)
-        avg_res.append(avg_res_i)
+                avg_res_i[edge][0] /= len(res_i)
+                avg_res_i[edge][1] /= len(res_i)
+            min_res.append(min_res_i)
+            avg_res.append(avg_res_i)
 
-    with open(min_path, "r") as min_v:
-        for line in min_v:
-            minimum_value = float(line.strip())
-    build_graph_min(min_res, minimum_value, 0, f"{dir_path}/min_0.jpg")
-    build_graph_avg(avg_res, minimum_value, 0, f"{dir_path}/avg_0.jpg")
-    build_graph_min(min_res, minimum_value, 1, f"{dir_path}/min_1.jpg")
-    build_graph_avg(avg_res, minimum_value, 1, f"{dir_path}/avg_1.jpg")
-    build_graph_min(min_res, minimum_value, 2, f"{dir_path}/min_2.jpg")
-    build_graph_avg(avg_res, minimum_value, 2, f"{dir_path}/avg_2.jpg")
-    build_graph_min(min_res, minimum_value, 3, f"{dir_path}/min_3.jpg")
-    build_graph_avg(avg_res, minimum_value, 3, f"{dir_path}/avg_3.jpg")
+        with open(min_path, "r") as min_v:
+            for line in min_v:
+                minimum_value = float(line.strip())
+        build_graph_min(min_res, minimum_value, 0, f"{dir_path}/min_0.jpg")
+        build_graph_avg(avg_res, minimum_value, 0, f"{dir_path}/avg_0.jpg")
+        build_graph_min(min_res, minimum_value, 1, f"{dir_path}/min_1.jpg")
+        build_graph_avg(avg_res, minimum_value, 1, f"{dir_path}/avg_1.jpg")
+        build_graph_min(min_res, minimum_value, 2, f"{dir_path}/min_2.jpg")
+        build_graph_avg(avg_res, minimum_value, 2, f"{dir_path}/avg_2.jpg")
+        build_graph_min(min_res, minimum_value, 3, f"{dir_path}/min_3.jpg")
+        build_graph_avg(avg_res, minimum_value, 3, f"{dir_path}/avg_3.jpg")
     # print(len(results))
     # print(len(results[0]))
     # print(len(results[0][0]))
