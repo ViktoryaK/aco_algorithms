@@ -1,4 +1,8 @@
 import argparse
+from ant_colony_tsp_script import get_res
+
+
+def build_ant_dep_table(dir, graph_path, config_path, config_path_mm, paths_path, n):
 
 
 if __name__ == "__main__":

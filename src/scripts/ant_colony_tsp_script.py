@@ -18,18 +18,21 @@ def run_task(graph_path, config_path, paths_path, func_num):
 
 def get_res(graph_path, config_path, config_path_mm, paths_path, n):
     funcs_res = []
+    total_times = []
     for i in range(1, 5):
         print(f"Running func: {i}")
         funcs_res.append([])
+        total_times.append([])
         for _ in range(n):
             if i == 4:
                 config_path = config_path_mm
             func_res = run_task(graph_path, config_path, paths_path, i)
             res_n = []
-            for j in range(0, len(func_res), 2):
+            for j in range(0, len(func_res) - 1, 2):
                 res_n.append((float(func_res[j].split(": ")[1]), float(func_res[j + 1].split(": ")[1])))
             funcs_res[-1].append(res_n)
-    return funcs_res
+            total_times[-1].append(func_res[-1].split("=")[1])
+    return funcs_res, total_times
 
 
 def build_graph_min(min_res, min_value, number_of_f, path_to_save_min):
@@ -101,7 +104,9 @@ if __name__ == "__main__":
     config_temp = dir_path + "/config_temp.cfg"
     paths_temp = dir_path + "/path_temp.csv"
     min_path = dir_path + "/min_path.txt"
-    results = get_res(args.graph, args.config, args.config_min_max, paths_temp, args.repetitions)
+    results, times = get_res(args.graph, args.config, args.config_min_max, paths_temp, args.repetitions)
+    print(results)
+    print(times)
     min_res = []
     avg_res = []
     for res_i in results:
