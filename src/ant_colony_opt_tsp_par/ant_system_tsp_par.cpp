@@ -248,7 +248,7 @@ void ant_system_elitism_tsp_par(size_t number_of_threads, const AntsParams &conf
         std::vector<std::vector<std::pair<size_t, size_t>>> elite_paths(config.elitism_n);
         while (elite < config.elitism_n) {
             size_t cur_path = 0;
-            while (cur_path < path_popularity[all_paths[elite]] && cur_path + elite < config.elitism_n) {
+            while (cur_path < path_popularity[all_paths[path_n]] && cur_path + elite < config.elitism_n) {
                 elite_paths[elite + cur_path] = paths_std[path_by_length[all_paths[path_n]]];
                 cur_path++;
             }

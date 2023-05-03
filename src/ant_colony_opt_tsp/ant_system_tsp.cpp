@@ -198,7 +198,7 @@ void ant_system_elitism_tsp(const std::vector<std::unordered_map<size_t, double>
         std::vector<std::vector<std::pair<size_t, size_t>>> elite_paths(config.elitism_n);
         while (elite < config.elitism_n) {
             size_t cur_path = 0;
-            while (cur_path < path_popularity[all_paths[elite]] && cur_path + elite < config.elitism_n) {
+            while (cur_path < path_popularity[all_paths[path_n]] && cur_path + elite < config.elitism_n) {
                 elite_paths[elite + cur_path] = paths[path_by_length[all_paths[path_n]]];
                 cur_path++;
             }
