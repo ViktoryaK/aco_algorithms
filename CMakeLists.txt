@@ -77,7 +77,29 @@ add_executable(aco_algorithms main.cpp
         ./src/ant_colony_opt_tsp/ant_colony_system_tsp.h
         ./src/ant_colony_opt_tsp/max_min_ant_system_tsp.cpp
         ./src/ant_colony_opt_tsp/max_min_ant_system_tsp.h
+
         )
+
+
+add_executable(genetic_algorithm genetic_main.cpp
+        ./src/parsers/graph_parser.cpp
+        ./src/parsers/graph_parser.h
+        ./src/parsers/parser.cpp
+        ./src/parsers/parser.h
+        ./src/parsers/ants_params.cpp
+        ./src/parsers/ants_params.h
+        ./src/random_choice/random_choice.cpp
+        ./src/random_choice/random_choice.h
+        ./src/random_choice/max_choice.cpp
+        ./src/random_choice/max_choice.h
+        ./src/graph_generation/write_to_csv.cpp
+        ./src/graph_generation/write_to_csv.h
+        ./src/time_determination/time_determination.cpp
+        ./src/time_determination/time_determination.h
+        ./src/genetic_tsp/genetic_tsp.cpp
+        ./src/genetic_tsp/genetic_tsp.h
+        )
+
 
 
 add_executable(aco_algorithms_par par_main.cpp
@@ -98,6 +120,7 @@ add_executable(aco_algorithms_par par_main.cpp
         ./src/ant_colony_opt_tsp_par/ant_system_tsp_par.cpp
         ./src/ant_colony_opt_tsp_par/ant_system_tsp_par.h
         )
+
 find_package(Threads REQUIRED)
 target_link_libraries(aco_algorithms_par Threads::Threads)
 
@@ -106,15 +129,21 @@ target_link_libraries(aco_algorithms_par Threads::Threads)
 #! Add external packages
 # options_parser requires boost::program_options library
 find_package(Boost 1.71.0 COMPONENTS program_options system REQUIRED)
+
 target_include_directories(aco_algorithms PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(aco_algorithms Boost::program_options Boost::system)
 
 target_include_directories(aco_algorithms_par PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(aco_algorithms_par Boost::program_options Boost::system)
 
+target_include_directories(genetic_algorithm PRIVATE ${Boost_INCLUDE_DIR})
+target_link_libraries(genetic_algorithm Boost::program_options Boost::system)
+
 set_target_properties(aco_algorithms PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 set_target_properties(aco_algorithms_par PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+
+set_target_properties(genetic_algorithm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 ##########################################################
 # Fixed CMakeLists.txt part
 ##########################################################
@@ -128,10 +157,14 @@ INSTALL(PROGRAMS
         DESTINATION bin)
 
 
+INSTALL(PROGRAMS
+        $<TARGET_FILE:genetic_algorithm> # ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
+        DESTINATION bin)
 # Define ALL_TARGETS variable to use in PVS and Sanitizers
 set(ALL_TARGETS aco_algorithms)
 
 set(ALL_TARGETS aco_algorithms_par)
 
+set(ALL_TARGETS genetic_algorithm)
 # Include CMake setup
 include(cmake/main-config.cmake)
