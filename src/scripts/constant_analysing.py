@@ -148,7 +148,7 @@ def build_init_graph(dir, graph_path, config_path, config_path_mm, paths_path, n
         plt.yticks(np.arange(min_value // 100 * 100, 6000, 100))
         plt.title(title)
         plt.legend()
-        plt.savefig(output_path + f"/init_pheromone_cl_{i}")
+        plt.savefig(output_path + f"/init_pheromone_cl_{i}.pdf")
         plt.cla()
 
 
@@ -200,7 +200,7 @@ def build_evaropation_graph(dir, graph_path, config_path, config_path_mm, paths_
         plt.yticks(np.arange(min_value // 100 * 100, 6000, 100))
         plt.title(title)
         plt.legend()
-        plt.savefig(output_path + f"/evaropation_rate_cl_{i}")
+        plt.savefig(output_path + f"/evaropation_rate_cl_{i}.pdf")
         plt.cla()
 
 
@@ -240,7 +240,7 @@ def build_explore_graph(dir, graph_path, config_path, paths_path, n, output_path
     plt.yticks(np.arange(min_value // 100 * 100, 6000, 100))
     plt.title(title)
     plt.legend()
-    plt.savefig(output_path + f"/exploration_const_cl")
+    plt.savefig(output_path + f"/exploration_const_cl.pdf")
     plt.cla()
 
 
@@ -280,7 +280,7 @@ def build_decay_graph(dir, graph_path, config_path, paths_path, n, output_path):
     plt.yticks(np.arange(min_value // 100 * 100, 6000, 100))
     plt.title(title)
     plt.legend()
-    plt.savefig(output_path + f"/pheromone_decay_cl")
+    plt.savefig(output_path + f"/pheromone_decay_cl.pdf")
     plt.cla()
 
 

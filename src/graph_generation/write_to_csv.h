@@ -13,4 +13,8 @@ void write_to_csv(const std::string &output_path,
                   const std::vector<std::vector<std::pair<size_t, size_t>>> &most_popular_paths,
                   const std::vector<std::pair<size_t, size_t>> &min_path, size_t nodes, size_t iterations);
 
+void write_to_csv_mp(const std::string &output_path,
+                     const std::vector<std::vector<std::pair<size_t, size_t>>> &most_popular_paths,
+                     const std::vector<std::pair<size_t, size_t>> &min_path, size_t nodes, size_t iterations);
+
 #endif //ACO_ALGORITHMS_WRITE_TO_CSV_H

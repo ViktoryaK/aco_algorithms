@@ -113,7 +113,6 @@ void ant_system_tsp_par(size_t number_of_threads, const AntsParams &config,
         std::unordered_map<double, size_t> path_by_length;
         std::vector<std::promise<std::vector<std::pair<size_t, size_t>>>> paths(config.ants_n);
         for (size_t ant = 0; ant < config.ants_n; ++ant) {
-//            std::cout << 1 << std::endl;
             std::vector<std::pair<size_t, size_t>> ant_path;
             boost::asio::post(pool, [&paths, &pheromones, &config, &graph, ant]() {
                 std::vector<std::pair<size_t, size_t>> ant_path;

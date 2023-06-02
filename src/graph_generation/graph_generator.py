@@ -8,6 +8,7 @@ def create_full_weighted_graph(n, min, max):
         graph.append([0] * n)
     for i in range(n):
         for j in range(i + 1, n):
+
             weight = random.randint(min, max)
             graph[i][j] = weight
             graph[j][i] = weight
@@ -15,7 +16,9 @@ def create_full_weighted_graph(n, min, max):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
+
+    args = parser.parse_args()
+    nodes_n = args.nodes_nparser = argparse.ArgumentParser(
         description='Python script for graph generation')
     parser.add_argument('file_path', type=str,  help='Path to output file')
     parser.add_argument('nodes_n', type=int,  help='Number of nodes')
@@ -23,8 +26,6 @@ if __name__ == "__main__":
     parser.add_argument('weighting', type=int, help='0 - not weighted graph, 1 - weighted')
     parser.add_argument('-min_weight', '-min', type=int, help='Min weight of edge')
     parser.add_argument('-max_weight', '-max', type=int, help='Max weight of edge')
-    args = parser.parse_args()
-    nodes_n = args.nodes_n
     completeness = args.completeness
     weighting = args.weighting
     if args.min_weight is not None:

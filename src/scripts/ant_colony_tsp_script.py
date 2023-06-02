@@ -19,7 +19,7 @@ def time_graph(times, func_number):
     plt.xticks([r for r in range(len(threads))], threads)
     plt.title(f"Effectiveness of parallelization coefficient for function {func_number}")
     plt.legend()
-    plt.savefig(f"data/efficiency{func_number}.jpg")
+    plt.savefig(f"data/efficiency{func_number}.pdf")
     plt.cla()
 
     br1 = np.arange(len(threads))
@@ -29,7 +29,7 @@ def time_graph(times, func_number):
     plt.xticks([r for r in range(len(threads))], threads)
     plt.title(f"Time plot for function {func_number}")
     plt.legend()
-    plt.savefig(f"data/time{func_number}.jpg")
+    plt.savefig(f"data/time{func_number}.pdf")
     plt.cla()
 
     coefficient_list = [times[0]/time for _, time in enumerate(times)]
@@ -40,7 +40,7 @@ def time_graph(times, func_number):
     plt.xticks([r for r in range(len(threads))], threads)
     plt.title(f"Amdal`s law curve for function {func_number}")
     plt.legend()
-    plt.savefig(f"data/amdal{func_number}.jpg")
+    plt.savefig(f"data/amdal{func_number}.pdf")
     plt.cla()
 
 
@@ -229,14 +229,14 @@ if __name__ == "__main__":
         with open(min_path, "r") as min_v:
             for line in min_v:
                 minimum_value = float(line.strip())
-        build_graph_min(min_res, minimum_value, 0, f"{dir_path}/min_0.jpg")
-        build_graph_avg(avg_res, minimum_value, 0, f"{dir_path}/avg_0.jpg", dev_for)
-        build_graph_min(min_res, minimum_value, 1, f"{dir_path}/min_1.jpg")
-        build_graph_avg(avg_res, minimum_value, 1, f"{dir_path}/avg_1.jpg", dev_for)
-        build_graph_min(min_res, minimum_value, 2, f"{dir_path}/min_2.jpg")
-        build_graph_avg(avg_res, minimum_value, 2, f"{dir_path}/avg_2.jpg", dev_for)
-        build_graph_min(min_res, minimum_value, 3, f"{dir_path}/min_3.jpg")
-        build_graph_avg(avg_res, minimum_value, 3, f"{dir_path}/avg_3.jpg", dev_for)
+        build_graph_min(min_res, minimum_value, 0, f"{dir_path}/min_0.pdf")
+        build_graph_avg(avg_res, minimum_value, 0, f"{dir_path}/avg_0.pdf", dev_for)
+        build_graph_min(min_res, minimum_value, 1, f"{dir_path}/min_1.pdf")
+        build_graph_avg(avg_res, minimum_value, 1, f"{dir_path}/avg_1.pdf", dev_for)
+        build_graph_min(min_res, minimum_value, 2, f"{dir_path}/min_2.pdf")
+        build_graph_avg(avg_res, minimum_value, 2, f"{dir_path}/avg_2.pdf", dev_for)
+        build_graph_min(min_res, minimum_value, 3, f"{dir_path}/min_3.pdf")
+        build_graph_avg(avg_res, minimum_value, 3, f"{dir_path}/avg_3.pdf", dev_for)
     # print(len(results))
     # print(len(results[0]))
     # print(len(results[0][0]))
