@@ -68,4 +68,4 @@ if __name__ == "__main__":
             minimum_value = float(line.strip())
     results, times = get_res(args.graph, args.config, paths_temp, 500)
     results_new = [result[0] for result in results[0]]
-    build_graph(results_new, dir_path + "/gen.png", minimum_value)
+    build_graph(results_new, dir_path + "/gen.pdf", minimum_value)

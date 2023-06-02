@@ -100,7 +100,6 @@ void ant_system_pm_min_par(size_t number_of_threads, const std::vector<std::unor
         }
         iteration++;
     }
-    std::cout << min_length << std::endl;
     std::cout << "Percent of stable matchings: " << percent_of_stable_m(graph_2, min_path, config.nodes) << std::endl;
     std::cout << "Average women preference: " << average_preference(graph_2, min_path, config.nodes, true) << std::endl;
     std::cout << "Average men preference: " << average_preference(graph_2, min_path, config.nodes, false) << std::endl;

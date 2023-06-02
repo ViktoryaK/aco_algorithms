@@ -32,16 +32,16 @@ def time_graph(times, func_number):
     plt.savefig(f"data/time{func_number}.pdf")
     plt.cla()
 
-    coefficient_list = [times[0]/time for _, time in enumerate(times)]
-    br1 = np.arange(len(threads))
-    plt.plot(br1, coefficient_list, color='darkviolet')
-    plt.xlabel("Number of threads")
-    plt.ylabel("Amdal`s curve")
-    plt.xticks([r for r in range(len(threads))], threads)
-    plt.title(f"Amdal`s law curve for function {func_number}")
-    plt.legend()
-    plt.savefig(f"data/amdal{func_number}.pdf")
-    plt.cla()
+    # coefficient_list = [times[0]/time for _, time in enumerate(times)]
+    # br1 = np.arange(len(threads))
+    # plt.plot(br1, coefficient_list, color='darkviolet')
+    # plt.xlabel("Number of threads")
+    # plt.ylabel("Amdal`s curve")
+    # plt.xticks([r for r in range(len(threads))], threads)
+    # plt.title(f"Amdal`s law curve for function {func_number}")
+    # plt.legend()
+    # plt.savefig(f"data/amdal{func_number}.pdf")
+    # plt.cla()
 
 
 def run_task_par(graph_path, config_path, paths_path, func_num, thread):
